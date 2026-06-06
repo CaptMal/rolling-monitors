@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#06b6d4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Rolling Monitors">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230f172a' width='192' height='192'/><circle cx='96' cy='96' r='85' fill='%231e3a8a' stroke='%2306b6d4' stroke-width='4'/><path d='M60,96 Q96,130 132,96' stroke='%2306b6d4' stroke-width='3' fill='none' stroke-linecap='round'/></svg>">
+    <title>Captain's 3% Club - Rolling Monitors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top, 0);
+            padding-left: env(safe-area-inset-left, 0);
+            padding-right: env(safe-area-inset-right, 0);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        .header {
+            background: linear-gradient(to right, #0f2847, #1e3a8a);
+            border-bottom: 2px solid #06b6d4;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            color: #06b6d4;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #93c5fd;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 40px;
+        }
+
+        .card {
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-parametric {
+            background: rgba(127, 29, 29, 0.3);
+            border-color: #ef4444;
+        }
+
+        .card-parametric:hover {
+            background: rgba(127, 29, 29, 0.4);
+            border-color: #f87171;
+        }
+
+        .card-synchronous {
+            background: rgba(30, 58, 138, 0.4);
+            border-color: #3b82f6;
+        }
+
+        .card-synchronous:hover {
+            background: rgba(30, 58, 138, 0.5);
+            border-color: #60a5fa;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-description {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        .card-info {
+            font-size: 11px;
+            color: #94a3b8;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .icon {
+            font-size: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #06b6d4;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .info-section {
+            background: rgba(30, 58, 138, 0.3);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .info-section p {
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .info-section a {
+            color: #06b6d4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #06b6d4;
+            color: #0f172a;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:active {
+            background: #0891b2;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        .btn-secondary:active {
+            background: #1e293b;
+        }
+
+        .version {
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(6, 182, 212, 0.1);
+        }
+
+        .install-prompt {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-prompt p {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚓ Rolling Monitors</h1>
+        <p>Captain's 3% Club - Ship Stability Tracking</p>
+    </div>
+
+    <div class="container">
+        <!-- Install Prompt -->
+        <div id="installPrompt" class="install-prompt">
+            <p>📲 <strong>Add to Home Screen:</strong> Tap Share → Add to Home Screen</p>
+            <div class="buttons-grid">
+                <button class="btn-secondary" onclick="dismissInstall()">Dismiss</button>
+                <button class="btn-primary" onclick="installApp()">Install</button>
+            </div>
+        </div>
+
+        <!-- Parametric Rolling Monitor -->
+        <a href="./parametric.html" class="card card-parametric">
+            <div class="card-title">
+                <span class="icon">📊</span>
+                Parametric Rolling
+            </div>
+            <div class="card-description">
+                Monitor frequency ratio danger band (1.8-2.2×). Real-time GM inputs, fin control, course correction with sea direction awareness.
+            </div>
+            <div class="card-info">
+                ℹ️ Wave period 10-20s | Frequency ratio threshold: 2.0× | Risk: Exponential amplitude growth
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">20s</div>
+                    <div class="stat-label">Natural Period</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1.8-2.2×</div>
+                    <div class="stat-label">Danger Band</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Synchronous Rolling Monitor -->
+        <a href="./synchronous.html" class="card card-synchronous">
+            <div class="card-title">
+                <span class="icon">🌊</span>
+                Synchronous Rolling
+            </div>
+            <div class="card-description">
+                Detect wave frequency sync with natural roll period (≈1.0×). Gradual amplitude growth monitoring with course correction and heading awareness.
+            </div>
+            <div class="card-info">
+                ℹ️ Wave period 18-22s | Frequency ratio threshold: 1.0× | Risk: Slow, predictable growth
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">20s</div>
+                    <div class="stat-label">Sync Band</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.85-1.15×</div>
+                    <div class="stat-label">Danger Zone</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Quick Reference -->
+        <div class="info-section">
+            <h3>⚡ Quick Reference - Your Ship</h3>
+            <p>📏 <strong>Length:</strong> 338m | <strong>Beam:</strong> 42m | <strong>Fins:</strong> 8m</p>
+            <p>📐 <strong>Natural Period (Tn):</strong> 20 seconds | <strong>Static GM:</strong> 1.64m | <strong>Reserve:</strong> 0.22m</p>
+            <p>🔴 <strong>Parametric Band:</strong> Wave period 10-20s (frequency ratio 2.0×)</p>
+            <p>🟡 <strong>Synchronous Band:</strong> Wave period 18-22s (frequency ratio 1.0×)</p>
+            <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(6, 182, 212, 0.2);">
+                💡 <strong>Emergency Action:</strong> Reduce speed 2-3 knots OR alter course 15-20° to exit danger band
+            </p>
+        </div>
+
+        <!-- Features -->
+        <div class="info-section">
+            <h3>✨ Features</h3>
+            <p>✅ Real-time frequency ratio calculation</p>
+            <p>✅ Editable GM inputs (Fluid, Required, Reserve)</p>
+            <p>✅ Fin stabilizer on/off with effect display</p>
+            <p>✅ Course correction with heading calculations</p>
+            <p>✅ Sea direction relative to ship heading</p>
+            <p>✅ Oscillation monitoring with trend detection</p>
+            <p>✅ Observation logging with timestamps</p>
+            <p>✅ Works offline once cached (PWA)</p>
+        </div>
+
+        <!-- Usage Guide -->
+        <div class="info-section">
+            <h3>📱 How to Use on iPhone</h3>
+            <p><strong>1. Add to Home Screen:</strong></p>
+            <p>Open in Safari → Tap Share → Add to Home Screen → Tap Add</p>
+            <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(6, 182, 212, 0.2);"><strong>2. Use Like an App:</strong></p>
+            <p>App opens fullscreen. No browser UI. Works offline.</p>
+            <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(6, 182, 212, 0.2);"><strong>3. Update Ship Data:</strong></p>
+            <p>Sliders adjust all parameters in real-time. Log observations every 15 minutes.</p>
+        </div>
+
+        <div class="version">
+            <p>🚢 Captain's 3% Club - Rolling Monitors v1.0</p>
+            <p>Built for 338m Cruise Ship Operations</p>
+            <p>Last updated: June 2026</p>
+        </div>
+    </div>
+
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+
+        // Install prompt handling
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('App installed');
+                    }
+                    deferredPrompt = null;
+                    dismissInstall();
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+
+        // Hide install prompt after 5 seconds
+        setTimeout(() => {
+            dismissInstall();
+        }, 5000);
+    </script>
+</body>
+</html>
