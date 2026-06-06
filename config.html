@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#06b6d4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ship Config">
+    <link rel="manifest" href="./manifest.json">
+    <title>Ship Configuration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top, 0);
+            padding-left: env(safe-area-inset-left, 0);
+            padding-right: env(safe-area-inset-right, 0);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        .header {
+            background: linear-gradient(to right, #0f2847, #1e3a8a);
+            border-bottom: 2px solid #06b6d4;
+            padding: 16px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            color: #06b6d4;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: #93c5fd;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 40px;
+        }
+
+        .card {
+            border-radius: 12px;
+            padding: 14px;
+            backdrop-filter: blur(10px);
+            border: 2px solid;
+            background: rgba(30, 58, 138, 0.4);
+            border-color: #06b6d4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            color: #06b6d4;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-label {
+            font-size: 11px;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .input-hint {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #06b6d4;
+            color: #0f172a;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-primary:active {
+            background: #0891b2;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #cbd5e1;
+            width: 48%;
+        }
+
+        .btn-secondary:active {
+            background: #1e293b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 10px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-top: 8px;
+        }
+
+        .alert {
+            background: rgba(34, 197, 94, 0.2);
+            border-left: 3px solid #22c55e;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #86efac;
+            margin-top: 8px;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(6, 182, 212, 0.2);
+            border: 1px solid #06b6d4;
+            border-radius: 6px;
+            color: #06b6d4;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .preset-btn:active {
+            background: rgba(6, 182, 212, 0.4);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .nav-buttons button {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .status-message {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid #22c55e;
+        }
+
+        .required {
+            color: #ef4444;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚙️ Ship Configuration</h1>
+        <p>Set up your vessel parameters for accurate rolling calculations</p>
+    </div>
+
+    <div class="container">
+        <!-- Ship Identification -->
+        <div class="card">
+            <div class="card-title">🚢 Ship Identification</div>
+            
+            <div class="input-group">
+                <label class="input-label">Ship Name <span class="required">*</span></label>
+                <input type="text" id="shipName" placeholder="e.g., My Cruise Ship" value="338m Cruise Ship">
+                <div class="input-hint">Your vessel's name or identifier</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Ship Type <span class="required">*</span></label>
+                <input type="text" id="shipType" placeholder="e.g., Cruise Ship, Cargo, Container" value="Cruise Ship">
+                <div class="input-hint">Vessel classification</div>
+            </div>
+        </div>
+
+        <!-- Critical Roll Parameters -->
+        <div class="card">
+            <div class="card-title">📐 Roll Dynamics (Critical)</div>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label class="input-label">Natural Roll Period (Tn) <span class="required">*</span></label>
+                    <input type="number" id="tn" placeholder="20" value="20" min="8" max="30" step="0.1">
+                    <div class="input-hint">Seconds</div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Static GM <span class="required">*</span></label>
+                    <input type="number" id="staticGM" placeholder="1.64" value="1.64" min="0.5" max="3" step="0.01">
+                    <div class="input-hint">Meters</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong style="color: #06b6d4;">How to find these:</strong><br>
+                Tn: From ship stability booklet or stability analysis<br>
+                Static GM: Load computer or stability document
+            </div>
+        </div>
+
+        <!-- Hull Dimensions -->
+        <div class="card">
+            <div class="card-title">📏 Hull Dimensions</div>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label class="input-label">Length (LOA) <span class="required">*</span></label>
+                    <input type="number" id="length" placeholder="338" value="338" min="50" max="500" step="1">
+                    <div class="input-hint">Meters</div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Beam <span class="required">*</span></label>
+                    <input type="number" id="beam" placeholder="42" value="42" min="10" max="80" step="0.1">
+                    <div class="input-hint">Meters</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Fin Stabilizer Span (if equipped)</label>
+                <input type="number" id="finSpan" placeholder="8" value="8" min="0" max="20" step="0.1">
+                <div class="input-hint">Meters (0 if no stabilizers)</div>
+            </div>
+        </div>
+
+        <!-- Stability Margins -->
+        <div class="card">
+            <div class="card-title">📊 Stability Margins</div>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label class="input-label">GM Reserve <span class="required">*</span></label>
+                    <input type="number" id="gmReserve" placeholder="0.22" value="0.22" min="-0.2" max="1" step="0.01">
+                    <div class="input-hint">Meters</div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Min Required GM <span class="required">*</span></label>
+                    <input type="number" id="gmMinimum" placeholder="0.15" value="0.15" min="0.1" max="0.5" step="0.01">
+                    <div class="input-hint">Meters (IMO)</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong style="color: #06b6d4;">Stability info:</strong><br>
+                GM Reserve: Your current safety cushion above minimum<br>
+                Min Required: IMO regulatory minimum (typically 0.15m)
+            </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="card">
+            <div class="card-title">⚡ Quick Presets</div>
+            <p style="font-size: 11px; color: #cbd5e1; margin-bottom: 10px;">Load preset values for common ship types:</p>
+            <div class="presets">
+                <button class="preset-btn" onclick="loadPreset('cruise')">Cruise Ship</button>
+                <button class="preset-btn" onclick="loadPreset('container')">Container Ship</button>
+                <button class="preset-btn" onclick="loadPreset('bulk')">Bulk Carrier</button>
+                <button class="preset-btn" onclick="loadPreset('tanker')">Tanker</button>
+            </div>
+        </div>
+
+        <!-- Save & Actions -->
+        <div class="card">
+            <div class="card-title">💾 Save Configuration</div>
+            
+            <button class="btn-primary" onclick="saveConfiguration()">✓ Save Configuration</button>
+            
+            <div id="statusMessage"></div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="exportData()">📥 Export</button>
+                <button class="btn-secondary" onclick="clearData()">🗑️ Clear</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-title">🧭 Go to Monitors</div>
+            <div class="nav-buttons">
+                <button class="btn-primary" style="background: #ef4444;" onclick="window.location.href='parametric.html'">📊 Parametric Monitor</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-primary" style="background: #3b82f6;" onclick="window.location.href='synchronous.html'">🌊 Synchronous Monitor</button>
+            </div>
+        </div>
+
+        <!-- Information -->
+        <div class="card">
+            <div class="card-title">ℹ️ About Configuration</div>
+            <div class="info-box">
+                <strong style="color: #06b6d4;">What gets saved:</strong><br>
+                All parameters are stored locally on your device. They're used to calculate frequency ratios and risk levels in both monitors.<br><br>
+                <strong style="color: #06b6d4;">Shared across both monitors:</strong><br>
+                Once configured, your ship data is automatically available in the Parametric and Synchronous monitors without re-entry.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Preset configurations
+        const presets = {
+            cruise: {
+                shipName: 'Cruise Ship',
+                shipType: 'Cruise Ship',
+                tn: 20,
+                staticGM: 1.64,
+                length: 338,
+                beam: 42,
+                finSpan: 8,
+                gmReserve: 0.22,
+                gmMinimum: 0.15
+            },
+            container: {
+                shipName: 'Container Ship',
+                shipType: 'Container Ship',
+                tn: 18,
+                staticGM: 1.20,
+                length: 400,
+                beam: 59,
+                finSpan: 10,
+                gmReserve: 0.30,
+                gmMinimum: 0.15
+            },
+            bulk: {
+                shipName: 'Bulk Carrier',
+                shipType: 'Bulk Carrier',
+                tn: 22,
+                staticGM: 0.90,
+                length: 229,
+                beam: 32,
+                finSpan: 0,
+                gmReserve: 0.25,
+                gmMinimum: 0.15
+            },
+            tanker: {
+                shipName: 'Tanker',
+                shipType: 'Tanker',
+                tn: 19,
+                staticGM: 1.10,
+                length: 243,
+                beam: 44,
+                finSpan: 6,
+                gmReserve: 0.20,
+                gmMinimum: 0.15
+            }
+        };
+
+        function loadPreset(type) {
+            const preset = presets[type];
+            document.getElementById('shipName').value = preset.shipName;
+            document.getElementById('shipType').value = preset.shipType;
+            document.getElementById('tn').value = preset.tn;
+            document.getElementById('staticGM').value = preset.staticGM;
+            document.getElementById('length').value = preset.length;
+            document.getElementById('beam').value = preset.beam;
+            document.getElementById('finSpan').value = preset.finSpan;
+            document.getElementById('gmReserve').value = preset.gmReserve;
+            document.getElementById('gmMinimum').value = preset.gmMinimum;
+            showMessage('Preset loaded. Click Save to confirm.', 'success');
+        }
+
+        function saveConfiguration() {
+            // Validate required fields
+            const requiredFields = ['shipName', 'tn', 'staticGM', 'length', 'beam', 'gmReserve', 'gmMinimum'];
+            const shipConfig = {};
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                const value = document.getElementById(field).value;
+                if (!value) {
+                    showMessage('Please fill in all required fields', 'error');
+                    isValid = false;
+                    return;
+                }
+                shipConfig[field] = isNaN(value) ? value : parseFloat(value);
+            });
+
+            // Save optional fields
+            shipConfig.shipType = document.getElementById('shipType').value || 'Unknown';
+            shipConfig.finSpan = parseFloat(document.getElementById('finSpan').value) || 0;
+
+            if (isValid) {
+                localStorage.setItem('shipConfig', JSON.stringify(shipConfig));
+                showMessage('✓ Configuration saved! You can now use the monitors.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        }
+
+        function exportData() {
+            const config = localStorage.getItem('shipConfig');
+            if (!config) {
+                showMessage('No configuration to export', 'error');
+                return;
+            }
+            const data = JSON.parse(config);
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ship-config-${data.shipName.replace(/\s+/g, '-')}.json`;
+            a.click();
+            showMessage('✓ Configuration exported', 'success');
+        }
+
+        function clearData() {
+            if (confirm('Are you sure? This will clear all saved configuration.')) {
+                localStorage.removeItem('shipConfig');
+                document.getElementById('shipName').value = '338m Cruise Ship';
+                document.getElementById('shipType').value = 'Cruise Ship';
+                document.getElementById('tn').value = '20';
+                document.getElementById('staticGM').value = '1.64';
+                document.getElementById('length').value = '338';
+                document.getElementById('beam').value = '42';
+                document.getElementById('finSpan').value = '8';
+                document.getElementById('gmReserve').value = '0.22';
+                document.getElementById('gmMinimum').value = '0.15';
+                showMessage('✓ Configuration cleared', 'success');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('statusMessage');
+            msg.textContent = text;
+            msg.className = `status-message status-${type}`;
+            if (type === 'success') {
+                setTimeout(() => {
+                    msg.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // Load saved config on page load
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('shipConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('shipName').value = config.shipName;
+                document.getElementById('shipType').value = config.shipType || '';
+                document.getElementById('tn').value = config.tn;
+                document.getElementById('staticGM').value = config.staticGM;
+                document.getElementById('length').value = config.length;
+                document.getElementById('beam').value = config.beam;
+                document.getElementById('finSpan').value = config.finSpan || '';
+                document.getElementById('gmReserve').value = config.gmReserve;
+                document.getElementById('gmMinimum').value = config.gmMinimum;
+            }
+        });
+    </script>
+</body>
+</html>
