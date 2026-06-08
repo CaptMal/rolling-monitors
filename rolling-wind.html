@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wind Monitor">
+    <link rel="manifest" href="./manifest.json">
+    <title>Rolling Monitor - Wind & Bollard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            border-bottom: 2px solid #10b981;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin: -20px -16px 0 -16px;
+            padding: 12px 16px;
+        }
+
+        .nav-btn {
+            padding: 8px 14px;
+            border: 1px solid #10b981;
+            background: transparent;
+            color: #86efac;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active {
+            background: #10b981;
+            color: #fff;
+            border-color: #059669;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-top: 20px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            border-bottom: 2px solid #10b981;
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .control-section {
+            background: #1e293b;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .control-section h2 {
+            font-size: 16px;
+            color: #86efac;
+            margin-bottom: 14px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #0f172a;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            border: 2px solid #059669;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            border: 2px solid #059669;
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #10b981;
+            font-size: 14px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #1e293b;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 4px;
+        }
+
+        .metric-unit {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .status-card {
+            background: #1e293b;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-card.warning {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .status-card.danger {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .status-title {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .status-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .status-card.warning .status-text {
+            color: #f59e0b;
+        }
+
+        .status-card.danger .status-text {
+            color: #ef4444;
+        }
+
+        .note {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #93c5fd;
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #10b981;
+            color: white;
+            border: 2px solid #10b981;
+        }
+
+        .btn:active {
+            background: #059669;
+            transform: scale(0.95);
+        }
+
+        .full-grid {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button class="nav-btn" onclick="goToPage('index.html')">Home</button>
+        <button class="nav-btn" onclick="goToPage('parametric.html')">Parametric</button>
+        <button class="nav-btn" onclick="goToPage('synchronous.html')">Synchronous</button>
+        <button class="nav-btn active" onclick="goToPage('rolling-wind.html')">Wind</button>
+        <button class="nav-btn" onclick="goToPage('rolling-pitch.html')">UKC Pitch</button>
+        <button class="nav-btn" onclick="goToPage('rolling-roll.html')">UKC Roll</button>
+        <button class="nav-btn" onclick="goToPage('rolling-config.html')">Config</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Wind & Bollard Pull</h1>
+            <p>Calculate wind force and required bollard pull capacity</p>
+        </div>
+
+        <div class="control-section">
+            <h2>⛈ Wind Parameters</h2>
+            <div class="control-grid">
+                <div class="control-item">
+                    <label class="control-label">Wind Speed (knots)</label>
+                    <div class="slider-container">
+                        <input type="range" id="windSpeed" min="0" max="60" value="25" step="1" oninput="updateCalculations()">
+                        <span class="value-display" id="windSpeedValue">25</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label class="control-label">Wind Direction (°)</label>
+                    <div class="slider-container">
+                        <input type="range" id="windDirection" min="0" max="180" value="30" step="10" oninput="updateCalculations()">
+                        <span class="value-display" id="windDirectionValue">30°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Wind Force</div>
+                <div class="metric-value" id="windForce">126</div>
+                <div class="metric-unit">kN</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Required Bollard</div>
+                <div class="metric-value" id="requiredBollard">145</div>
+                <div class="metric-unit">kN</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Available Power</div>
+                <div class="metric-value" id="availablePower">600</div>
+                <div class="metric-unit">kN</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Safety Margin</div>
+                <div class="metric-value" id="safetyMargin">76%</div>
+                <div class="metric-unit">remaining</div>
+            </div>
+        </div>
+
+        <div id="statusCard" class="status-card">
+            <div class="status-title">Status</div>
+            <div class="status-text" id="statusText">✓ Adequate</div>
+        </div>
+
+        <div class="note">
+            💡 <strong>Wind Force:</strong> Calculated using vessel projected area and drag coefficient. 
+            <strong>Bollard Pull Required:</strong> Includes wind force plus hydrodynamic resistance (2% of DWT × g). 
+            Compare with available power to ensure safe operations.
+        </div>
+
+        <div class="button-group">
+            <button class="btn" onclick="exportData()">📊 Export Data</button>
+        </div>
+    </div>
+
+    <script>
+        function getVesselConfig() {
+            const saved = localStorage.getItem('vesselConfig');
+            return saved ? JSON.parse(saved) : {
+                vesselName: 'Explorer of the Seas',
+                lbp: 274,
+                beam: 38.6,
+                draft: 8.9,
+                projectedArea: 4500,
+                mainEngineOutput: 60000,
+                dwtTonnage: 182000
+            };
+        }
+
+        function updateCalculations() {
+            const windSpeed = parseFloat(document.getElementById('windSpeed').value);
+            const windDirection = parseFloat(document.getElementById('windDirection').value);
+            
+            document.getElementById('windSpeedValue').textContent = windSpeed;
+            document.getElementById('windDirectionValue').textContent = windDirection + '°';
+
+            const config = getVesselConfig();
+            
+            // Calculate wind force
+            const windSpeedMs = windSpeed * 0.5144;
+            const rho = 1.225;
+            const cd = getWindCoefficient(windDirection);
+            const windForce = (0.5 * rho * (windSpeedMs ** 2) * config.projectedArea * cd) / 1000;
+
+            // Calculate required bollard
+            const resistanceCoeff = 0.02;
+            const dragResistance = (resistanceCoeff * config.dwtTonnage * 9.81) / 1000;
+            const requiredBollard = windForce + dragResistance;
+
+            // Available power
+            const availablePower = config.mainEngineOutput;
+
+            // Safety margin
+            const safetyMargin = ((availablePower - requiredBollard) / availablePower * 100);
+
+            // Update displays
+            document.getElementById('windForce').textContent = Math.round(windForce);
+            document.getElementById('requiredBollard').textContent = Math.round(requiredBollard);
+            document.getElementById('availablePower').textContent = Math.round(availablePower);
+            document.getElementById('safetyMargin').textContent = Math.max(0, Math.round(safetyMargin)) + '%';
+
+            // Update status
+            const statusCard = document.getElementById('statusCard');
+            const statusText = document.getElementById('statusText');
+
+            if (requiredBollard <= availablePower * 0.7) {
+                statusCard.className = 'status-card';
+                statusText.textContent = '✓ Adequate - Good margin';
+                statusText.style.color = '#10b981';
+            } else if (requiredBollard <= availablePower * 0.9) {
+                statusCard.className = 'status-card warning';
+                statusText.textContent = '⚠ Caution - Limited margin';
+                statusText.style.color = '#f59e0b';
+            } else {
+                statusCard.className = 'status-card danger';
+                statusText.textContent = '✗ Insufficient power';
+                statusText.style.color = '#ef4444';
+            }
+        }
+
+        function getWindCoefficient(direction) {
+            const coefficients = {
+                0: 0.25, 10: 0.255, 20: 0.26, 30: 0.265,
+                40: 0.27, 50: 0.275, 60: 0.275, 70: 0.275,
+                180: 0.25
+            };
+            return coefficients[direction] || 0.26;
+        }
+
+        function exportData() {
+            const config = getVesselConfig();
+            const windSpeed = document.getElementById('windSpeed').value;
+            const windDirection = document.getElementById('windDirection').value;
+            const windForce = document.getElementById('windForce').textContent;
+            const requiredBollard = document.getElementById('requiredBollard').textContent;
+            const timestamp = new Date().toLocaleString();
+
+            const data = `Wind & Bollard Pull Report
+Vessel: ${config.vesselName}
+Date/Time: ${timestamp}
+---
+Wind Speed: ${windSpeed} knots
+Wind Direction: ${windDirection}°
+Wind Force: ${windForce} kN
+Required Bollard Pull: ${requiredBollard} kN
+Available Power: ${document.getElementById('availablePower').textContent} kN
+Safety Margin: ${document.getElementById('safetyMargin').textContent}
+Status: ${document.getElementById('statusText').textContent}`;
+
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wind-bollard-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function goToPage(page) {
+            window.location.href = page;
+        }
+
+        window.addEventListener('load', updateCalculations);
+    </script>
+</body>
+</html>

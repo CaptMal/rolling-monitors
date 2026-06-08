@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UKC Roll">
+    <link rel="manifest" href="./manifest.json">
+    <title>Rolling Monitor - UKC Rolling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            border-bottom: 2px solid #8b5cf6;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin: -20px -16px 0 -16px;
+            padding: 12px 16px;
+        }
+
+        .nav-btn {
+            padding: 8px 14px;
+            border: 1px solid #8b5cf6;
+            background: transparent;
+            color: #c4b5fd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active {
+            background: #8b5cf6;
+            color: #fff;
+            border-color: #7c3aed;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-top: 20px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            border-bottom: 2px solid #8b5cf6;
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .control-section {
+            background: #1e293b;
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .control-section h2 {
+            font-size: 16px;
+            color: #c4b5fd;
+            margin-bottom: 14px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #0f172a;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            cursor: pointer;
+            border: 2px solid #7c3aed;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            cursor: pointer;
+            border: 2px solid #7c3aed;
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #8b5cf6;
+            font-size: 14px;
+        }
+
+        .stabilizer-section {
+            background: #1e293b;
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stabilizer-section h2 {
+            font-size: 16px;
+            color: #c4b5fd;
+            margin-bottom: 12px;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .radio-btn {
+            position: relative;
+        }
+
+        .radio-btn input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-btn label {
+            display: block;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #8b5cf6;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .radio-btn input[type="radio"]:checked + label {
+            background: #8b5cf6;
+            color: white;
+            border-color: #7c3aed;
+        }
+
+        .radio-btn label:active {
+            transform: scale(0.95);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #1e293b;
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-bottom: 4px;
+        }
+
+        .metric-unit {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .ukc-card {
+            background: #1e293b;
+            border: 2px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .ukc-card.good {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .ukc-card.caution {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .ukc-card.danger {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .ukc-label {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .ukc-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .ukc-card.good .ukc-value {
+            color: #10b981;
+        }
+
+        .ukc-card.caution .ukc-value {
+            color: #f59e0b;
+        }
+
+        .ukc-card.danger .ukc-value {
+            color: #ef4444;
+        }
+
+        .ukc-unit {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .status-text {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-card {
+            background: #1e293b;
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .comparison-card h3 {
+            color: #c4b5fd;
+            font-size: 13px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #8b5cf6;
+            padding-bottom: 8px;
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+        .comparison-item span:first-child {
+            color: #94a3b8;
+        }
+
+        .comparison-item span:last-child {
+            color: #c4b5fd;
+            font-weight: 600;
+        }
+
+        .note {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid #8b5cf6;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #c4b5fd;
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #8b5cf6;
+            color: white;
+            border: 2px solid #8b5cf6;
+        }
+
+        .btn:active {
+            background: #7c3aed;
+            transform: scale(0.95);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button class="nav-btn" onclick="goToPage('index.html')">Home</button>
+        <button class="nav-btn" onclick="goToPage('parametric.html')">Parametric</button>
+        <button class="nav-btn" onclick="goToPage('synchronous.html')">Synchronous</button>
+        <button class="nav-btn" onclick="goToPage('rolling-wind.html')">Wind</button>
+        <button class="nav-btn" onclick="goToPage('rolling-pitch.html')">UKC Pitch</button>
+        <button class="nav-btn active" onclick="goToPage('rolling-roll.html')">UKC Roll</button>
+        <button class="nav-btn" onclick="goToPage('rolling-config.html')">Config</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>UKC - Rolling</h1>
+            <p>Under-keel clearance considering roll motion</p>
+        </div>
+
+        <div class="control-section">
+            <h2>🌊 Wave Parameters</h2>
+            <div class="control-grid">
+                <div class="control-item">
+                    <label class="control-label">Wave Height (m)</label>
+                    <div class="slider-container">
+                        <input type="range" id="waveHeight" min="1" max="12" value="5" step="0.5" oninput="updateCalculations()">
+                        <span class="value-display" id="waveHeightValue">5</span>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <label class="control-label">Wave Period (s)</label>
+                    <div class="slider-container">
+                        <input type="range" id="wavePeriod" min="5" max="18" value="10" step="0.5" oninput="updateCalculations()">
+                        <span class="value-display" id="wavePeriodValue">10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stabilizer-section">
+            <h2>🎯 Stabilizer Configuration</h2>
+            <div class="radio-group">
+                <div class="radio-btn">
+                    <input type="radio" id="stabOff" name="stabilizer" value="off" onchange="updateCalculations()">
+                    <label for="stabOff">OFF</label>
+                </div>
+                <div class="radio-btn">
+                    <input type="radio" id="stab1Fin" name="stabilizer" value="1fin" onchange="updateCalculations()">
+                    <label for="stab1Fin">1 Fin</label>
+                </div>
+                <div class="radio-btn">
+                    <input type="radio" id="stab2Fins" name="stabilizer" value="2fins" checked onchange="updateCalculations()">
+                    <label for="stab2Fins">2 Fins</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Roll Amplitude</div>
+                <div class="metric-value" id="rollAmplitude">8.5</div>
+                <div class="metric-unit">degrees</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Draft Increase</div>
+                <div class="metric-value" id="draftIncreaseRoll">0.28</div>
+                <div class="metric-unit">m</div>
+            </div>
+        </div>
+
+        <div id="ukcCard" class="ukc-card good">
+            <div class="ukc-label">Available Under-Keel Clearance</div>
+            <div class="ukc-value" id="availableUkc">8.12</div>
+            <div class="ukc-unit">meters</div>
+            <div class="status-text" id="ukcStatus">✓ Safe - Good clearance</div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="comparison-card">
+                <h3>Without Stabilizers</h3>
+                <div class="comparison-item">
+                    <span>Roll Amplitude:</span>
+                    <span id="ampNoStab">12.4°</span>
+                </div>
+                <div class="comparison-item">
+                    <span>Draft Increase:</span>
+                    <span id="draftNoStab">0.41 m</span>
+                </div>
+                <div class="comparison-item">
+                    <span>Available UKC:</span>
+                    <span id="ukcNoStab">7.99 m</span>
+                </div>
+            </div>
+            <div class="comparison-card">
+                <h3>With Your Config</h3>
+                <div class="comparison-item">
+                    <span>Roll Amplitude:</span>
+                    <span id="ampWithStab">8.5°</span>
+                </div>
+                <div class="comparison-item">
+                    <span>Draft Increase:</span>
+                    <span id="draftWithStab">0.28 m</span>
+                </div>
+                <div class="comparison-item">
+                    <span>Available UKC:</span>
+                    <span id="ukcWithStab">8.12 m</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            💡 <strong>Roll Motion:</strong> Lateral oscillation of the vessel affects draft distribution across the beam. 
+            <strong>Stabilizers:</strong> Fin stabilizers reduce roll amplitude and associated draft increase. 
+            Compare the values to see the benefit of active stabilization in challenging sea states.
+        </div>
+
+        <div class="button-group">
+            <button class="btn" onclick="exportData()">📊 Export Data</button>
+        </div>
+    </div>
+
+    <script>
+        function getVesselConfig() {
+            const saved = localStorage.getItem('vesselConfig');
+            return saved ? JSON.parse(saved) : {
+                vesselName: 'Explorer of the Seas',
+                lbp: 274,
+                beam: 38.6,
+                draft: 8.9,
+                waterDepth: 17
+            };
+        }
+
+        function updateCalculations() {
+            const waveHeight = parseFloat(document.getElementById('waveHeight').value);
+            const wavePeriod = parseFloat(document.getElementById('wavePeriod').value);
+            const stabConfig = document.querySelector('input[name="stabilizer"]:checked').value;
+            
+            document.getElementById('waveHeightValue').textContent = waveHeight;
+            document.getElementById('wavePeriodValue').textContent = wavePeriod;
+
+            const config = getVesselConfig();
+            
+            // Calculate roll dynamics
+            const g = 9.81;
+            const waveFreq = (2 * Math.PI) / wavePeriod;
+            const naturalFreq = Math.sqrt(g / (0.73 * config.beam));
+            
+            // Base roll amplitude
+            let rollAmplitude = (waveHeight / 2) * (config.beam / 10);
+            
+            // Apply damping based on stabilizer
+            let dampingRatio = 0.02; // Base damping
+            if (stabConfig === '1fin') {
+                dampingRatio = 0.035;
+            } else if (stabConfig === '2fins') {
+                dampingRatio = 0.05;
+            }
+            
+            // Resonance response
+            const detuning = Math.abs(waveFreq - naturalFreq) / naturalFreq;
+            if (detuning < 0.05) {
+                // Near resonance
+                rollAmplitude = (waveHeight / 2) * (config.beam / (20 * dampingRatio * 2));
+            } else {
+                // Normal response
+                rollAmplitude = rollAmplitude / (2 * dampingRatio * naturalFreq * (1 + detuning));
+            }
+            
+            // Draft increase due to roll
+            const draftIncreaseRoll = (rollAmplitude * Math.PI / 180) * (config.beam / 2) / config.draft;
+            
+            // Calculate without stabilizers
+            let rollAmplitudeNoStab = (waveHeight / 2) * (config.beam / 10);
+            const detuningNoStab = Math.abs(waveFreq - naturalFreq) / naturalFreq;
+            if (detuningNoStab < 0.05) {
+                rollAmplitudeNoStab = (waveHeight / 2) * (config.beam / (20 * 0.02 * 2));
+            } else {
+                rollAmplitudeNoStab = rollAmplitudeNoStab / (2 * 0.02 * naturalFreq * (1 + detuningNoStab));
+            }
+            const draftIncreaseNoStab = (rollAmplitudeNoStab * Math.PI / 180) * (config.beam / 2) / config.draft;
+            
+            // Available UKC
+            const effectiveDraft = config.draft + draftIncreaseRoll;
+            const effectiveDraftNoStab = config.draft + draftIncreaseNoStab;
+            
+            const availableUkc = config.waterDepth - effectiveDraft;
+            const availableUkcNoStab = config.waterDepth - effectiveDraftNoStab;
+
+            // Update displays
+            document.getElementById('rollAmplitude').textContent = Math.min(rollAmplitude.toFixed(1), 45);
+            document.getElementById('draftIncreaseRoll').textContent = Math.min(draftIncreaseRoll.toFixed(2), 1.5);
+            document.getElementById('availableUkc').textContent = Math.max(0, availableUkc.toFixed(2));
+            
+            // Comparison values
+            document.getElementById('ampNoStab').textContent = Math.min(rollAmplitudeNoStab.toFixed(1), 45) + '°';
+            document.getElementById('ampWithStab').textContent = Math.min(rollAmplitude.toFixed(1), 45) + '°';
+            document.getElementById('draftNoStab').textContent = Math.min(draftIncreaseNoStab.toFixed(2), 1.5) + ' m';
+            document.getElementById('draftWithStab').textContent = Math.min(draftIncreaseRoll.toFixed(2), 1.5) + ' m';
+            document.getElementById('ukcNoStab').textContent = Math.max(0, availableUkcNoStab.toFixed(2)) + ' m';
+            document.getElementById('ukcWithStab').textContent = Math.max(0, availableUkc.toFixed(2)) + ' m';
+
+            // Update status
+            const ukcCard = document.getElementById('ukcCard');
+            const statusText = document.getElementById('ukcStatus');
+
+            if (availableUkc > 1.0) {
+                ukcCard.className = 'ukc-card good';
+                statusText.textContent = '✓ Safe - Good clearance';
+                statusText.style.color = '#86efac';
+            } else if (availableUkc > 0.5) {
+                ukcCard.className = 'ukc-card caution';
+                statusText.textContent = '⚠ Caution - Limited clearance';
+                statusText.style.color = '#fcd34d';
+            } else if (availableUkc > 0) {
+                ukcCard.className = 'ukc-card danger';
+                statusText.textContent = '✗ Danger - Minimal clearance';
+                statusText.style.color = '#fca5a5';
+            } else {
+                ukcCard.className = 'ukc-card danger';
+                statusText.textContent = '✗ GROUNDING RISK';
+                statusText.style.color = '#fca5a5';
+                statusText.style.fontWeight = '700';
+            }
+        }
+
+        function exportData() {
+            const config = getVesselConfig();
+            const waveHeight = document.getElementById('waveHeight').value;
+            const wavePeriod = document.getElementById('wavePeriod').value;
+            const stabConfig = document.querySelector('input[name="stabilizer"]:checked').value;
+            const timestamp = new Date().toLocaleString();
+
+            const data = `UKC - Rolling Report
+Vessel: ${config.vesselName}
+Date/Time: ${timestamp}
+---
+Wave Height: ${waveHeight} m
+Wave Period: ${wavePeriod} s
+Stabilizer Config: ${stabConfig.toUpperCase()}
+---
+Roll Amplitude: ${document.getElementById('rollAmplitude').textContent}°
+Draft Increase: ${document.getElementById('draftIncreaseRoll').textContent} m
+Available UKC: ${document.getElementById('availableUkc').textContent} m
+Status: ${document.getElementById('ukcStatus').textContent}
+---
+COMPARISON (Without vs With Stabilizers):
+Roll Amplitude: ${document.getElementById('ampNoStab').textContent} vs ${document.getElementById('ampWithStab').textContent}
+Draft Increase: ${document.getElementById('draftNoStab').textContent} vs ${document.getElementById('draftWithStab').textContent}
+Available UKC: ${document.getElementById('ukcNoStab').textContent} vs ${document.getElementById('ukcWithStab').textContent}`;
+
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ukc-roll-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function goToPage(page) {
+            window.location.href = page;
+        }
+
+        window.addEventListener('load', updateCalculations);
+    </script>
+</body>
+</html>
