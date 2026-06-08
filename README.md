@@ -1,335 +1,500 @@
-⚓ Rolling Monitors PWA
-Real-time parametric and synchronous rolling detection for cruise ships
-A Progressive Web App (PWA) for monitoring ship stability and rolling dynamics. Installs on iPhone home screen. Works offline. Designed for maritime operations with real-time frequency ratio calculation, editable GM inputs, and course correction guidance.
+⚓ # Rolling Monitors PWA
+**Real-time parametric, synchronous, and operational rolling detection for cruise ships**
 
-📱 Install on iPhone
-Quick Start (30 seconds)
+A Progressive Web App (PWA) for monitoring ship stability, rolling dynamics, wind forces, and under-keel clearance. Installs on iPhone home screen. Works offline. Designed for maritime operations with real-time calculations, editable parameters, and operational guidance.
 
-Open Safari on your iPhone
-Go to: https://captmal.github.io/rolling-monitors/
-Tap Share → Add to Home Screen
-Tap Add
-✅ App appears on home screen
+![Version](https://img.shields.io/badge/version-2.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-iOS%20Safari-blueviolet)
 
-Launch
-Tap app icon → Opens fullscreen (no browser UI) → Works offline
+---
 
-🎯 Features
-Parametric Rolling Monitor
+## 📱 Quick Start (30 seconds)
 
-✅ Real-time frequency ratio calculation (danger band: 1.8-2.2×)
-✅ Editable GM inputs:
+### Install on iPhone
+1. Open **Safari** on your iPhone
+2. Go to: `https://captmal.github.io/rolling-monitors/`
+3. Tap **Share** → **Add to Home Screen**
+4. Tap **Add**
+5. ✅ App appears on home screen
 
-GM Fluid (dynamic): 1.0-2.25 m slider
-GM Required (threshold): 1.0-2.25 m slider
-GM Reserve (buffer): -0.10 to +0.75 m slider
+### Launch & Use
+- Tap app icon → Opens fullscreen (no browser UI)
+- Works offline with cached data
+- Data stored locally on your device
+- No internet required after first load
 
+---
 
-✅ Fin stabilizer on/off toggle with 40% damping effect
-✅ Course correction with real-time heading updates
-✅ Sea direction relative to ship heading (compass-aware)
-✅ Wave hazard classification (Head, Quartering, Beam)
-✅ Oscillation monitoring with trend detection
-✅ Observation logging with timestamps
+## 🎯 Features Overview
 
-Synchronous Rolling Monitor
+### **🌊 Rolling Monitor Suite (NEW)**
+Integrated operational tools for wind, power, and under-keel clearance calculations.
 
-✅ Synchronous detection (frequency ratio ≈ 1.0×)
-✅ Danger band: 0.85-1.15× (18-22 second waves)
-✅ Course correction with heading calculations
-✅ Sea direction relative to ship heading
-✅ Wave hazard assessment
-✅ Synchronous vs Parametric comparison table
-✅ Real-time recommendations
-✅ Roll amplitude monitoring
-✅ Observation logging
+#### **⚙️ Vessel Configuration**
+- Set vessel specifications (LBP, Beam, Draft, Engine Power, etc.)
+- Quick presets for common vessel types:
+  - Explorer of the Seas (cruise ship)
+  - Generic Vessel (template)
+  - Supertanker
+  - Container Ship
+- Save/Load configurations (stored locally on iPhone)
+- Stabilizer toggle options
+- Configuration shared across all monitors
 
-PWA Features
+#### **💨 Wind & Bollard Pull**
+- **Wind Force Calculation**
+  - Wind speed slider: 0-60 knots
+  - Wind direction: 0-180° relative to bow
+  - Real-time force calculation (kN)
+  - Drag coefficient based on wind direction
+  
+- **Bollard Pull Requirements**
+  - Calculates required power accounting for wind force
+  - Includes hydrodynamic resistance
+  - Compares required vs available engine power
+  - Safety margin percentage indicator
+  - Status: ✓ Adequate / ⚠ Caution / ✗ Insufficient
 
-✅ Offline access (service worker caching)
-✅ Home screen installation (looks like native app)
-✅ Fast loading (<1 second)
-✅ No app store required
-✅ Auto-updates when deployed
+#### **📏 UKC - Pitching**
+- **Wave-Induced Pitching Effects**
+  - Wave height: 1-12 meters
+  - Water depth: 5-50 meters
+  - Squat effect: 0-2 meters
+  
+- **Draft Analysis**
+  - Current vessel draft
+  - Pitching effect breakdown
+  - Squat effect contribution
+  - Total effective draft increase
+  
+- **Under-Keel Clearance**
+  - Available UKC calculation
+  - Safe/Caution/Danger status colors
+  - Minimum 0.5m safety margin guidance
 
+#### **🎯 UKC - Rolling**
+- **Roll Motion Calculations**
+  - Wave height & period inputs
+  - Roll amplitude in degrees
+  - Draft increase from roll motion
+  
+- **Stabilizer Configuration**
+  - Three options: OFF / 1 FIN / 2 FINS
+  - Real-time comparison calculations
+  - Shows performance difference with stabilizers
+  - Damping effect modeling
+  
+- **Performance Comparison**
+  - Side-by-side metrics (with/without stabilizers)
+  - Roll amplitude reduction
+  - Draft increase reduction
+  - Available UKC improvement
 
-🚢 Ship Parameters (Configured)
-Vessel Type:        338m Cruise Ship
-Beam:               42m
-Natural Roll Period (Tn): 20 seconds
-Static GM:          1.64 m
-Stability Reserve:  0.22 m
-Fin Stabilizers:    8m span, 25.6 m² area
-Frequency Danger Bands
-Rolling TypeTriggerDanger BandWave PeriodRisk LevelParametric2.0× ratio1.8-2.2×10-20 secCRITICALSynchronous1.0× ratio0.85-1.15×18-22 secMODERATE
+---
 
-🎓 How It Works
-Parametric Rolling
+### **📊 Parametric Rolling Monitor**
+Real-time detection and monitoring of parametric rolling hazards.
 
-Occurs when wave frequency ≈ 0.5× natural roll frequency (2.0× ratio)
-Metacentric height oscillates at 2× wave frequency
-Energy pumped into roll motion → exponential amplitude growth
-Max risk: Wave period 10-20 seconds
-Mitigation: Reduce speed 2-3 knots OR alter course 15-20°
+#### **Core Calculations**
+- ✅ **Frequency Ratio (Tn/Tw)**
+  - Wave encounter period
+  - Natural roll period
+  - Danger band: 1.8-2.2× (red zone)
+  - Real-time ratio display
 
-Synchronous Rolling
+#### **Stability Parameters (Editable)**
+- **GM Fluid** (dynamic): 1.0-2.25 m slider
+  - Current vessel metacentric height
+  - Affects roll frequency
+  - Real-time recalculation
 
-Occurs when wave frequency = natural roll frequency (1.0× ratio)
-Ship rocks in sync with waves
-Energy input ~1-2% per cycle → linear amplitude growth
-Max risk: Wave period 18-22 seconds
-Mitigation: Small speed change ±1-2 knots OR alter course 10°
+- **GM Required** (threshold): 1.0-2.25 m slider
+  - Minimum stability requirement
+  - Danger threshold indicator
+  - Visual margin display
 
+- **GM Reserve** (buffer): -0.10 to +0.75 m slider
+  - Safety margin above minimum
+  - Green = safe, Red = at risk
+  - Buffer for sea state variation
 
-📊 Real-Time Inputs
-Sea State
+#### **Stabilizer Control**
+- ✅ Fin stabilizer ON/OFF toggle
+- ✅ 40% damping effect when active
+- ✅ Reduces roll amplitude
+- ✅ Improves frequency ratio
 
-Wave period (4-16 seconds)
-Wave height (1-10 meters)
-Current speed (10-30 knots)
+#### **Navigation & Sea State**
+- **Course Heading**
+  - 0-360° input
+  - Real-time updates
+  - Compass-aware
 
-Ship Position
+- **Sea Direction Relative to Heading**
+  - Head sea, Quartering, Beam, Stern
+  - Visual classification
+  - Hazard assessment
 
-Ship heading (0-360°)
-Wave direction (0-360°)
-Course correction (-60° to +60°)
+- **Wave Period & Height**
+  - Encounter period calculation
+  - Ship heading effects
+  - Visual wave hazard indicator
 
-Stability
+#### **Real-Time Monitoring**
+- ✅ Current List (heel angle)
+- ✅ Max Oscillation (amplitude)
+- ✅ Trend detection (increasing/stable/decreasing)
+- ✅ Visual status indicators
 
-GM Fluid: Current dynamic stability
-GM Required: Operational threshold
-GM Reserve: Safety buffer above minimum
+#### **Observation Logging**
+- ✅ Timestamp capture
+- ✅ Notes entry
+- ✅ Data persistence
+- ✅ CSV export for records
+- ✅ Full observation history
 
-Systems
+---
 
-Fin stabilizer: ON/OFF toggle
-Current list (heel angle)
-Max oscillation amplitude
+### **🔄 Synchronous Rolling Monitor**
+Detects synchronous rolling (wave-ship frequency matching).
 
+#### **Synchronous Detection**
+- ✅ **Frequency Ratio ≈ 1.0×**
+  - Wave frequency matches natural roll frequency
+  - Danger band: 0.85-1.15× (18-22 second waves)
+  - High risk of large roll amplitudes
 
-🔧 Technical Details
-Technology
+#### **Real-Time Monitoring**
+- ✅ Current List (heel angle)
+- ✅ Max Oscillation (roll amplitude)
+- ✅ Frequency ratio trend
+- ✅ Danger band warning
 
-Frontend: Vanilla JavaScript, HTML5, CSS3
-Architecture: Progressive Web App (PWA)
-Offline: Service Worker + Cache API
-Storage: localStorage for observations
-Performance: <1 second load, ~115 KB total
+#### **Navigation Control**
+- **Course Correction**
+  - Heading 0-360°
+  - Sea direction relative to ship
+  - Real-time encounter period updates
 
-Files
-index.html              Home page / app launcher
-parametric.html         Parametric rolling monitor
-synchronous.html        Synchronous rolling monitor
-manifest.json          PWA metadata + app icons
-offline.html           Offline fallback page
-sw.js                  Service worker (caching)
-Browser Support
+#### **Comparison Tools**
+- ✅ Parametric vs Synchronous risk assessment
+- ✅ Side-by-side frequency ratio display
+- ✅ Recommended actions
+- ✅ Risk prioritization
 
-✅ Safari (iOS 13+)
-✅ Chrome (Android)
-✅ Firefox
-✅ Edge
-✅ Works offline on all
+#### **Observation Logging**
+- ✅ Timestamp capture
+- ✅ Notes entry
+- ✅ Data persistence
+- ✅ CSV export
 
+---
 
-📈 Monitoring Protocol
-Every 15 Minutes During Watch:
+## ⚙️ Configuration Page
 
-Input current sea state (wave period, height, direction)
-Input ship heading and course
-Observe oscillation amplitude on display
-Log observation with one-line note
-Check risk level (green/yellow/red)
-Take action if recommendations appear
+### **Vessel Profile Setup**
+- Vessel name & registry
+- Hull dimensions (LBP, Beam, Draft)
+- Block coefficient (Cb)
+- DWT tonnage
+- Water depth reference
 
-Action Thresholds
-🟢 GREEN (Safe)
+### **Equipment Inventory**
+- Main engine output (kW)
+- Mast height
+- Projected area (for wind calculations)
+- Fin stabilizer fitted? (Yes/No)
+- Roll stabilizer fitted? (Yes/No)
 
-Continue normal operations
-Monitor every 15 minutes
-No action needed
+### **Preset Vessels**
+Load pre-configured profiles:
+- Explorer of the Seas
+- Generic Vessel
+- Supertanker
+- Container Ship
 
-🟡 YELLOW (Caution)
+---
 
-Small speed adjustment (±1-2 knots) may help
-Monitor oscillations closely
-Prepare to alter course if amplitude grows
+## 💾 PWA Features
 
-🔴 RED (Critical)
+### **Installation**
+- ✅ Installs to iPhone home screen
+- ✅ Full-screen app mode (no browser UI)
+- ✅ Custom app icon & splash screen
+- ✅ App-like experience
+- ✅ No app store required
 
-Reduce speed 2-3 knots immediately
-OR alter course 15-20° away from head seas
-Activate fin stabilizers if available
-Monitor every 5 minutes
-Notify master and crew
+### **Offline Capability**
+- ✅ Works completely offline
+- ✅ Service worker caching
+- ✅ Offline fallback page
+- ✅ Zero internet required after first load
 
+### **Data Persistence**
+- ✅ All data stored locally (`localStorage`)
+- ✅ Configuration auto-saves
+- ✅ Observation logs persist
+- ✅ No cloud sync (private)
+- ✅ Survives app closure & phone restart
 
-📱 Installation & Usage
-First Time Setup
+### **Performance**
+- ✅ Fast load times (<1s with Starlink)
+- ✅ Responsive sliders
+- ✅ Real-time calculations
+- ✅ Smooth animations
+- ✅ Mobile-optimized UI
 
-Open Safari on iPhone
-Navigate to app URL
-Tap Share → Add to Home Screen
-App caches automatically
-Works offline from second visit
+### **Export & Backup**
+- ✅ CSV export of observation logs
+- ✅ Text export of calculations
+- ✅ Downloadable to iPhone Files app
+- ✅ Email-able reports
 
-Daily Use
+---
 
-Tap app icon on home screen
-App opens fullscreen
-Input sea state data
-Monitor frequency ratio
-Log observations every 15 min
-App works completely offline
+## 🗂️ File Structure
 
-Updates
+```
+rolling-monitors/
+├── index.html                 # Home page with all monitors
+├── parametric.html           # Parametric rolling monitor
+├── synchronous.html          # Synchronous rolling monitor
+├── config.html              # Original config (legacy)
+├── rolling-config.html      # Vessel configuration
+├── rolling-wind.html        # Wind & bollard pull
+├── rolling-pitch.html       # UKC pitching
+├── rolling-roll.html        # UKC rolling
+├── manifest.json            # PWA metadata
+├── offline.html             # Offline fallback
+├── sw.js                    # Service worker
+└── README.md                # This file
+```
 
-New versions deployed automatically
-Pull down to refresh to get latest
-No app store needed
-All history preserved in observation log
+---
 
+## 🚀 Deployment
 
-🚀 Deployment
-Live at:
+Hosted on GitHub Pages at:
+```
 https://captmal.github.io/rolling-monitors/
-Hosted on:
+```
 
-GitHub Pages (free, unlimited)
-Always available
-Auto-updated via git push
-Version control built-in
+### Direct Page Links
+- Home: `https://captmal.github.io/rolling-monitors/`
+- Parametric: `https://captmal.github.io/rolling-monitors/parametric.html`
+- Synchronous: `https://captmal.github.io/rolling-monitors/synchronous.html`
+- Configuration: `https://captmal.github.io/rolling-monitors/rolling-config.html`
+- Wind & Bollard: `https://captmal.github.io/rolling-monitors/rolling-wind.html`
+- UKC Pitching: `https://captmal.github.io/rolling-monitors/rolling-pitch.html`
+- UKC Rolling: `https://captmal.github.io/rolling-monitors/rolling-roll.html`
 
-To Update:
+---
 
-Edit files locally
-Push to GitHub: git push origin main
-Wait 1-2 minutes
-Users pull down to refresh
+## 📊 How to Use Each Monitor
 
+### **Parametric Rolling Monitor**
+1. Open app
+2. Go to Configuration → Set your vessel specs
+3. Go to Parametric monitor
+4. Enter current heading (0-360°)
+5. Enter wave period (seconds)
+6. Adjust GM sliders to match current stability
+7. Watch frequency ratio indicator
+8. If ratio 1.8-2.2 → **DANGER ZONE** → Course correction needed
+9. Toggle fin stabilizer ON to reduce risk
+10. Log observations for record
 
-📝 Observation Logging
-Each log entry captures:
+### **Synchronous Rolling Monitor**
+1. Similar setup to parametric
+2. Watch for ratio ≈ 1.0× (danger zone 0.85-1.15×)
+3. This is **wave frequency = ship natural frequency**
+4. Requires immediate course correction
+5. Adjust heading to increase encounter period
+6. Monitor trend in oscillation
 
-Time: Exact timestamp
-Note: User observation (e.g., "Oscillation growing", "Fin deployment")
-Ratio: Current frequency ratio (×)
-List: Current heel angle (°)
-GM: Current dynamic GM (m)
-Heading: Ship compass heading (°)
-Wave Direction: Absolute wave bearing (°)
-Relative Angle: Calculated relative to heading (°)
+### **Wind & Bollard Monitor**
+1. Go to Configuration → Set your vessel
+2. Go to Wind monitor
+3. Enter current wind speed (knots)
+4. Enter wind direction relative to bow
+5. Watch real-time calculations:
+   - Wind force (kN)
+   - Required bollard pull
+   - Available engine power
+   - Safety margin
+6. Red status = insufficient power → Reduce wind exposure
 
-Observations persist in app and can be reviewed anytime.
+### **UKC Pitching Monitor**
+1. Go to Configuration → Set water depth & draft
+2. Go to UKC Pitch
+3. Enter current wave height
+4. Enter squat effect (typically 0.3-0.5m)
+5. Review draft breakdown:
+   - Current draft
+   - Pitching effect
+   - Squat effect
+   - Total effective draft
+6. Check available UKC:
+   - Green (>1.0m) = Safe
+   - Amber (0.5-1.0m) = Caution
+   - Red (<0.5m) = Danger
 
-🆘 Emergency Actions
-If Parametric Rolling Detected (Red Alert)
-Immediate (0-2 minutes):
+### **UKC Rolling Monitor**
+1. Go to Configuration → Set vessel specs
+2. Go to UKC Roll
+3. Enter wave height & period
+4. Select stabilizer config (OFF/1 FIN/2 FINS)
+5. Compare performance:
+   - With stabilizers = reduced roll
+   - Without stabilizers = increased roll
+6. Check available UKC at bottom
+7. Stabilizers reduce risk significantly
 
-✅ Notify bridge crew
-✅ Reduce speed to 19.0 knots (or increase to 24+ knots)
-✅ Activate fin stabilizers
-✅ Verify ballast tanks full/empty (no free surface)
+---
 
-Monitoring (2-10 minutes):
+## 🔧 Technical Details
 
-✅ Monitor oscillations every 5 minutes
-✅ Check if amplitude stabilizes
-✅ If growing, alter course 15-20° away from head seas
+### **Technologies Used**
+- HTML5
+- CSS3 (CSS Variables for theming)
+- Vanilla JavaScript (no frameworks)
+- Service Worker (offline support)
+- localStorage API (data persistence)
+- Web Manifest (PWA installation)
 
-If Escalates:
+### **Browser Support**
+- ✅ Safari on iOS 12.2+
+- ✅ Chrome on Android
+- ✅ Edge on any OS
+- ✅ Firefox on any OS
 
-✅ Continue course/speed adjustment
-✅ Monitor GM margin erosion
-✅ Alert master and crew
-✅ Be prepared for emergency stations
+### **Performance**
+- Total app size: ~350 KB (uncompressed)
+- All files: 8 HTML + JS + CSS
+- Load time: <1 second (Starlink)
+- Offline: Instant after first load
 
+---
 
-💡 Key Calculations
-Frequency Ratio
-Frequency Ratio = Wave Frequency / Ship Natural Frequency
-                = (1 / Wave Period) / (1 / 20 seconds)
-                = Wave Period / 20
+## ⚠️ Important Notes
 
-Example:
-  Wave period 10s → Ratio = 10/20 = 0.5× (Parametric risk? Yes, 2.0×)
-  Wave period 20s → Ratio = 20/20 = 1.0× (Synchronous risk? Yes)
-Wave Hazard Relative to Ship
-Relative Angle = Wave Direction - Ship Heading
-               = Normalized to ±180°
+### **Disclaimer**
+- This app is a **decision support tool**, not a replacement for:
+  - Professional stability calculations
+  - Vessel-specific analysis
+  - Regulatory compliance
+  - Captain's judgment
 
-0° = Head seas (WORST)
-90° = Beam seas (BEST)
-180° = Following seas (MODERATE)
-GM Margin
-Effective GM = Fluid GM + (Fin Boost if active)
-Margin = Effective GM - GM Required
-Status = GREEN if >0.15m, RED if <0
+- **Always verify calculations independently**
+- Use in conjunction with:
+  - Official stability documentation
+  - Weather routing
+  - Coast Guard/Flag State regulations
+  - Bridge procedures manual
 
-📚 References
-For Crew:
+### **Data Safety**
+- ✅ All data stored **locally on your iPhone**
+- ✅ No cloud sync or external servers
+- ✅ No personal data collected
+- ✅ Works completely offline
+- ✅ Data persists on device until manually cleared
 
-Parametric Rolling Guide: See in-app explanations
-Synchronous Rolling Guide: See in-app comparison table
-GM Requirements: US IMO Weather Criterion (0.15m minimum)
-Fin Stabilizer Effects: 40% oscillation reduction + ~0.10m GM boost
+### **Updates**
+- Updates deploy automatically via GitHub Pages
+- Hard refresh in Safari to get latest version
+- Previous data persists across updates
+- Manifest version controls cache invalidation
 
-Ship Documentation:
+---
 
-Stability curves: Review before voyage
-Natural roll period: Confirm from stability analysis
-GM calculations: Verified with load computer
-Fin specifications: 8m span, 25.6 m² area
+## 📱 Sharing with Crew
 
+Send crew members the link:
+```
+https://captmal.github.io/rolling-monitors/
+```
 
-🔐 Data Privacy
+Each person installs independently on their iPhone:
+1. Open Safari
+2. Paste the URL
+3. Tap Share → Add to Home Screen
+4. Tap Add
+5. App appears on home screen
 
-All data is local - no cloud storage
-No tracking - no analytics
-No ads - clean interface
-No login - works immediately
-Observations stay on your device - not shared
+Each person's data is separate and private.
 
+---
 
-📞 Support
-If app doesn't work:
+## 🛠️ Development & Customization
 
-Refresh: Pull down on app
-Clear cache: Safari Settings → Clear History/Website Data
-Reinstall: Remove from home screen, reinstall from Safari
-Offline mode: Put iPhone in airplane mode to test caching
+### **Modifying the App**
+The app uses simple HTML + CSS + JavaScript (no build process).
 
-For feature requests:
-Create an issue in this GitHub repository
+To customize:
+1. Edit the .html files
+2. Commit to GitHub
+3. GitHub Pages auto-deploys in 1-2 minutes
+4. Hard refresh in Safari to see changes
 
-📋 Checklist Before Passage
+### **Common Customizations**
+- Change vessel presets in `rolling-config.html`
+- Adjust color scheme in CSS variables
+- Add more navigation links in navbar
+- Modify calculation formulas in JavaScript
 
- App installed on home screen
- Wave forecast reviewed for next 24 hours
- Ballast condition confirmed (full/empty tanks)
- Fin stabilizer system tested
- GM calculations verified
- Natural roll period confirmed (Tn = 20s)
- Bridge crew briefed on rolling risks
- Observation log ready to use
- Emergency procedures reviewed
+### **Adding Features**
+Each page is self-contained:
+- Edit the page's JavaScript section
+- Add new sliders, inputs, displays
+- Calculations update in real-time
+- localStorage handles data persistence
 
+---
 
-🚢 Vessel Information
-Captain's 3% Club - Rolling Monitors
-Designed for 338m cruise ship operations.
-Built for watch officers monitoring parametric and synchronous rolling.
-Real-time decision support for bridge crew.
+## 📝 Version History
 
-📄 License
-Public use - no restrictions
+### **v2.0 - Rolling Monitor Suite** (Current)
+- ✨ NEW: Vessel Configuration page
+- ✨ NEW: Wind & Bollard Pull calculator
+- ✨ NEW: UKC Pitching analysis
+- ✨ NEW: UKC Rolling analysis with stabilizer comparison
+- 🎨 Updated home page with all monitors
+- 🔄 Unified navigation across all pages
+- 💾 Shared configuration storage
 
-🙋 About
-Built by Captain Mal | Captain's 3% Club
-June 2026
-🌊 Safe sailing! Monitor your rolling, know your frequencies, stay ahead of resonance. ⚓
+### **v1.0 - Initial Release**
+- Parametric Rolling Monitor
+- Synchronous Rolling Monitor
+- Basic configuration page
+- Observation logging
+- CSV export
 
-Quick Links
+---
+
+## 📧 Contact & Support
+
+**Repository:** `https://github.com/captmal/rolling-monitors`
+
+**Report Issues:**
+- Check file uploads
+- Wait 2-3 minutes for GitHub Pages deployment
+- Hard refresh Safari (pull down)
+- Clear cache if needed
+
+---
+
+## 📄 License
+
+MIT License - Free to use and modify
+
+---
+
+## 🙏 Acknowledgments
+
+Built for real-world maritime operations.
+Tested on Explorer of the Seas.
+Designed for bridge operations.
+
+**⚓ Safe sailing! ⚓**
 
 Live App: https://captmal.github.io/rolling-monitors/
 Home Page: https://captmal.github.io/rolling-monitors/index.html
